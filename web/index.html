@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a1421">
+  <title>Folder Analyzer</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand" aria-label="Folder Analyzer">
+        <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+        <span>FOLDER<span class="brand-accent">/</span>ANALYZER</span>
+      </div>
+      <span class="topbar-note">Local disk inventory <span class="topbar-dot" aria-hidden="true"></span> On this computer</span>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div class="eyebrow"><span class="eyebrow-line"></span> STORAGE INTELLIGENCE</div>
+        <h1 id="page-title">See where your<br><em>space goes.</em></h1>
+        <p>Scan a local folder to explore its contents, find the largest files, and understand what takes up space.</p>
+      </section>
+
+      <section class="scan-card" aria-labelledby="scan-heading">
+        <div class="scan-heading-row">
+          <div>
+            <div class="section-kicker">01 / CHOOSE A LOCATION</div>
+            <h2 id="scan-heading">Folder to analyze</h2>
+          </div>
+          <span class="local-badge"><span aria-hidden="true"></span> LOCAL ONLY</span>
+        </div>
+        <form id="scan-form" class="scan-form">
+          <label for="folder-path" class="sr-only">Folder path</label>
+          <div class="path-field"><span class="path-prompt" aria-hidden="true">›</span><input id="folder-path" name="path" type="text" autocomplete="off" spellcheck="false" placeholder="C:\Path\To\Folder" required></div>
+          <button id="browse-button" class="button button-secondary" type="button">Browse folder</button>
+          <button id="scan-button" class="button button-primary" type="submit">Start scan <span aria-hidden="true">→</span></button>
+        </form>
+        <div id="notice" class="notice" role="alert" hidden></div>
+        <div id="progress" class="progress-area" hidden>
+          <div class="progress-top"><span class="live-indicator"><span class="live-dot" aria-hidden="true"></span><span id="progress-label">Scanning folders</span></span><button id="cancel-button" type="button" class="text-button">Cancel scan</button></div>
+          <div class="progress-track" aria-hidden="true"><div class="progress-fill"></div></div>
+          <p id="current-path" class="current-path"></p>
+        </div>
+      </section>
+
+      <section id="results" class="results" aria-label="Analysis results" hidden>
+        <div class="results-heading">
+          <div><div class="section-kicker">02 / SCAN OVERVIEW</div><h2>At a glance</h2><p id="results-subtitle" class="results-subtitle"></p></div>
+          <a id="export-link" href="/api/export" class="export-link" hidden>Export CSV <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="stats-grid" aria-label="Scan statistics">
+          <div class="stat-card stat-primary"><span class="stat-label">TOTAL SIZE</span><strong id="stat-size">—</strong><span class="stat-detail">Logical file size</span></div>
+          <div class="stat-card"><span class="stat-label">FILES FOUND</span><strong id="stat-files">—</strong><span class="stat-detail">Across this folder</span></div>
+          <div class="stat-card"><span class="stat-label">FOLDERS</span><strong id="stat-folders">—</strong><span class="stat-detail">Directories indexed</span></div>
+          <div class="stat-card"><span class="stat-label">SKIPPED</span><strong id="stat-skipped">—</strong><span class="stat-detail">Unavailable or linked</span></div>
+          <div class="stat-card"><span class="stat-label">TIME ELAPSED</span><strong id="stat-elapsed">—</strong><span class="stat-detail">Scan duration</span></div>
+        </div>
+
+        <div class="workspace-heading"><div class="section-kicker">03 / EXPLORE YOUR DATA</div><h2>Explore the scan</h2></div>
+        <div class="workspace">
+          <div class="tabs" role="tablist" aria-label="Analysis views">
+            <button id="tab-explorer" role="tab" aria-controls="panel-explorer" aria-selected="true" tabindex="0" data-tab="explorer">Folder explorer</button>
+            <button id="tab-files" role="tab" aria-controls="panel-files" aria-selected="false" tabindex="-1" data-tab="files">Largest files</button>
+            <button id="tab-types" role="tab" aria-controls="panel-types" aria-selected="false" tabindex="-1" data-tab="types">File types</button>
+            <button id="tab-errors" role="tab" aria-controls="panel-errors" aria-selected="false" tabindex="-1" data-tab="errors">Skipped items</button>
+          </div>
+
+          <section id="panel-explorer" class="tab-panel" role="tabpanel" aria-labelledby="tab-explorer">
+            <div class="panel-header"><div><div class="panel-kicker">FOLDER EXPLORER</div><h3>Inside your folders</h3></div><div class="panel-actions"><button id="sort-size" class="sort-button active" type="button" aria-pressed="true">Size <span id="sort-size-arrow" aria-hidden="true">↓</span></button><button id="sort-name" class="sort-button" type="button" aria-pressed="false">Name <span id="sort-name-arrow" aria-hidden="true"></span></button></div></div>
+            <nav id="breadcrumbs" class="breadcrumbs" aria-label="Folder path"></nav>
+            <div id="viz-heading" class="viz-heading"><div><span class="panel-kicker">SPACE DISTRIBUTION</span><p>Immediate contents of this folder</p></div><div class="viz-toggle" role="group" aria-label="Chart view"><button id="view-donut" type="button" class="active" aria-pressed="true">Donut</button><button id="view-bars" type="button" aria-pressed="false">Bars</button></div></div>
+            <div id="donut-view" class="donut-view"><div class="donut-figure"><svg id="donut-svg" viewBox="0 0 240 240" role="img" aria-labelledby="donut-title donut-description"><title id="donut-title">Folder size breakdown</title><desc id="donut-description">Choose a legend item to explore a folder.</desc></svg><div class="donut-center"><span>IN THIS FOLDER</span><strong id="donut-total">—</strong><small>logical size</small></div></div><div id="donut-legend" class="donut-legend"></div></div>
+            <div id="donut-empty" class="chart-empty" hidden>No file data to chart in this folder.</div>
+            <div id="folder-map" class="folder-map" aria-label="Largest items in this folder"></div>
+            <div class="table-wrap"><table><thead><tr><th scope="col">NAME</th><th scope="col" class="numeric">SIZE</th><th scope="col" class="numeric optional-col">FILES</th><th scope="col" class="numeric optional-col">FOLDERS</th><th scope="col" class="numeric optional-col">MODIFIED</th><th scope="col" class="action-heading">ACTION</th></tr></thead><tbody id="browse-body"></tbody></table></div>
+            <div id="browse-empty" class="inline-empty" hidden>No items were found in this folder.</div>
+            <div id="browse-pagination" class="pagination" hidden><span id="browse-range"></span><div><button id="browse-prev" type="button">← Previous</button><button id="browse-next" type="button">Next →</button></div></div>
+          </section>
+
+          <section id="panel-files" class="tab-panel" role="tabpanel" aria-labelledby="tab-files" hidden>
+            <div class="panel-header"><div><div class="panel-kicker">FILE INDEX</div><h3>Largest files</h3></div></div>
+            <div class="filters"><label class="search-field"><span class="sr-only">Search file names</span><span aria-hidden="true">⌕</span><input id="file-search" type="search" placeholder="Search file names"></label><label class="extension-field"><span class="sr-only">Filter by extension</span><input id="extension-filter" type="text" placeholder="Extension, e.g. .zip"></label><button id="clear-filters" class="text-button" type="button">Clear filters</button></div>
+            <div class="table-wrap"><table><thead><tr><th scope="col">FILE / LOCATION</th><th scope="col" class="numeric">SIZE</th><th scope="col" class="numeric optional-col">MODIFIED</th></tr></thead><tbody id="files-body"></tbody></table></div>
+            <div id="files-empty" class="inline-empty" hidden>No files match these filters.</div>
+            <div id="files-pagination" class="pagination" hidden><span id="files-range"></span><div><button id="files-prev" type="button">← Previous</button><button id="files-next" type="button">Next →</button></div></div>
+          </section>
+
+          <section id="panel-types" class="tab-panel" role="tabpanel" aria-labelledby="tab-types" hidden>
+            <div class="panel-header"><div><div class="panel-kicker">STORAGE BREAKDOWN</div><h3>File types</h3></div><p class="panel-hint">Select a type to filter the file index.</p></div>
+            <div id="types-list" class="types-list"></div>
+            <div id="types-empty" class="inline-empty" hidden>No file types were found in this scan.</div>
+          </section>
+
+          <section id="panel-errors" class="tab-panel" role="tabpanel" aria-labelledby="tab-errors" hidden>
+            <div class="panel-header"><div><div class="panel-kicker">SCAN DETAILS</div><h3>Skipped items</h3></div></div>
+            <p class="panel-description">Unavailable files and linked folders may be skipped. These entries explain what could not be scanned.</p>
+            <div class="table-wrap"><table><thead><tr><th scope="col">PATH</th><th scope="col">REASON</th></tr></thead><tbody id="errors-body"></tbody></table></div>
+            <div id="errors-empty" class="inline-empty" hidden>No skipped items were reported.</div>
+          </section>
+        </div>
+      </section>
+
+      <section id="welcome" class="welcome" aria-label="Getting started">
+        <div class="welcome-graphic" aria-hidden="true"><span class="graphic-folder"><span class="graphic-tab"></span><span class="graphic-bar bar-one"></span><span class="graphic-bar bar-two"></span><span class="graphic-bar bar-three"></span><span class="graphic-bar bar-four"></span></span></div>
+        <div class="welcome-copy"><div class="section-kicker">READY WHEN YOU ARE</div><h2>Your storage, made clear.</h2><p>Choose a folder above and start a scan. You’ll get a browsable map of folders, a list of large files, and a breakdown by type.</p><div class="welcome-steps"><span><b>01</b> Choose a folder</span><span class="step-arrow" aria-hidden="true">→</span><span><b>02</b> Scan it</span><span class="step-arrow" aria-hidden="true">→</span><span><b>03</b> Explore</span></div></div>
+      </section>
+    </main>
+    <footer><span>FOLDER / ANALYZER</span><span>Runs locally in your browser · Sizes are logical file sizes</span></footer>
+  </div>
+  <dialog id="trash-dialog" aria-labelledby="trash-title" aria-describedby="trash-description">
+    <form method="dialog">
+      <div class="dialog-kicker">MOVE TO RECYCLE BIN</div>
+      <h2 id="trash-title">Move this folder?</h2>
+      <p id="trash-description">The selected folder and everything inside it, including subfolders, will be moved to the Windows Recycle Bin. Folder Analyzer will rescan the original root afterward.</p>
+      <div id="trash-path" class="dialog-path"></div>
+      <div class="dialog-actions"><button id="trash-cancel" class="button button-secondary" type="submit" value="cancel">Cancel</button><button class="button button-danger" type="submit" value="confirm">Move to Recycle Bin</button></div>
+    </form>
+  </dialog>
+</body>
+</html>

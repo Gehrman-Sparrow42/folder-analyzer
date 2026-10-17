@@ -1,0 +1,29 @@
+# Python and tool caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Local environments and editor state
+.venv/
+venv/
+.env
+.env.*
+.vscode/
+.idea/
+
+# Runtime indexes, inventories, and logs
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.log
+folder-analyzer.csv
+
+# OS metadata
+Thumbs.db
+Desktop.ini
+.DS_Store
