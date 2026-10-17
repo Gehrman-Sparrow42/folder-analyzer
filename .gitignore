@@ -27,3 +27,8 @@ folder-analyzer.csv
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Executable packaging artifacts
+build/
+dist/
+*.spec

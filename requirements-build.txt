@@ -1,0 +1,2 @@
+# Build-time dependency only; running the application needs no pip packages.
+pyinstaller==6.22.3

@@ -195,6 +195,16 @@ class ServerTests(unittest.TestCase):
         self.assertIn(b"hello.txt", export)
         self.assertEqual(self.request("POST", "/api/trash", {"path": self.temp.name})[0], 400)
 
+    def test_config_falls_back_to_home_and_serves_web_assets(self) -> None:
+        with patch("server.Path.is_dir", return_value=False), patch("server.Path.home", return_value=Path(self.temp.name)):
+            status, config = self.request("GET", "/api/config")
+        self.assertEqual(status, 200)
+        self.assertEqual(config["default_path"], self.temp.name)
+        for path, marker in (("/", b"Folder Analyzer"), ("/app.js", b"function"), ("/styles.css", b"body")):
+            status, payload = self.request("GET", path)
+            self.assertEqual(status, 200)
+            self.assertIn(marker, payload)
+
 
 if __name__ == "__main__":
     unittest.main()

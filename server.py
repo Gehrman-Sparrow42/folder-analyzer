@@ -74,7 +74,9 @@ class AnalyzerHandler(BaseHTTPRequestHandler):
             elif path == "/api/status":
                 self._json(200, manager.snapshot())
             elif path == "/api/config":
-                self._json(200, {"default_path": "C:\\Tools" if os.name == "nt" else str(Path.home())})
+                workspace = Path("C:/Tools")
+                default_path = workspace if os.name == "nt" and workspace.is_dir() else Path.home()
+                self._json(200, {"default_path": str(default_path)})
             elif path == "/api/browse":
                 sort = _single(params, "sort", "size")
                 order = _single(params, "order", "desc")
@@ -194,9 +196,14 @@ def main() -> None:
     parser.add_argument("--port", type=int, default=8520)
     parser.add_argument("--no-browser", action="store_true")
     args = parser.parse_args()
-    server = AnalyzerServer(("127.0.0.1", args.port))
+    try:
+        server = AnalyzerServer(("127.0.0.1", args.port))
+    except OSError as exc:
+        parser.exit(1, f"Could not start Folder Analyzer on port {args.port}: {exc}\n"
+                    "Use the running instance or choose another port with --port.\n")
     url = f"http://127.0.0.1:{server.server_port}/"
     print(f"Folder Analyzer: {url}")
+    print("Keep this window open while using the app. Press Ctrl+C here to stop.")
     if not args.no_browser:
         threading.Timer(0.5, lambda: webbrowser.open(url)).start()
     try:

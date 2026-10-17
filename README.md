@@ -15,7 +15,30 @@ file inventory as CSV. No account, cloud service, or frontend build is required.
   by an automatic rescan.
 - Local HTTP server and browser interface with no external assets or services.
 
-## Requirements
+## Download the Windows app
+
+**[Download FolderAnalyzer.exe](https://github.com/Gehrman-Sparrow42/folder-analyzer/releases/latest/download/FolderAnalyzer.exe)**
+
+Or open the [latest release](https://github.com/Gehrman-Sparrow42/folder-analyzer/releases/latest)
+for release notes and the `SHA256SUMS.txt` checksum file.
+
+1. Download `FolderAnalyzer.exe` to any convenient folder.
+2. Double-click it. The app opens in your default browser at
+   <http://127.0.0.1:8520>.
+3. Keep its console window open while using the app. Press Ctrl+C in that window
+   to stop it. Closing only the browser does not stop the app.
+
+The portable executable bundles Python, the browser assets, and the folder
+chooser. **No Python installation, package installation, or administrator access
+is required.** The release targets Windows 10/11 on x64 processors. It is
+unsigned; Windows may display an unknown-publisher or SmartScreen notice. This
+release has been tested locally, but not on a separate clean Windows machine.
+The one-file executable extracts its runtime to a temporary folder at startup.
+
+To use another port, run `FolderAnalyzer.exe --port 8521`. The `--no-browser`
+option is also supported.
+
+## Requirements for running from source
 
 - Windows 10 or 11 for the full experience, including Recycle Bin operations.
 - Python 3.13 (the version used for development and verification).
@@ -121,3 +144,18 @@ The symlink test skips if the current Windows session cannot create symlinks.
 
 The browser interface and API are served by the same process. Check
 `/api/health` for a running server. Closing the browser does not stop the server.
+
+## Build the Windows executable
+
+Build on Windows x64 using Python 3.13:
+
+```powershell
+python -m pip install -r requirements-build.txt
+.\build_windows.ps1
+```
+
+Use the intended Python environment on PATH when running the build script.
+It creates `dist/FolderAnalyzer.exe` and `dist/SHA256SUMS.txt`. PyInstaller is a
+build dependency only; it is not needed to run from source or use the executable.
+The web assets and Tkinter runtime are included in the executable. Generated
+build files and binaries are ignored by Git and distributed as release assets.
